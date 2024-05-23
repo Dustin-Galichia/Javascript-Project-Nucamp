@@ -1,60 +1,102 @@
 const ALPHA_VANTAGE_KEY = 'H10T3OLLBRCKL9V1';
 const symbol = 'IEP';
 const interval = '5min';
-const searchBar = 'apple'
+const searchBar = 'apple';
 
-async function timeSeriesIntraday() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
-}
-//timeSeriesIntraday();
+class AlphaVantageAPI {
+    constructor(apiKey, symbol) {
+        this.apiKey = apiKey;
+        this.symbol = symbol;
+        this.baseURL = 'https://www.alphavantage.co/query';
+    }
 
-async function timeSeriesDaily() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
-}
-//timeSeriesDaily();
+    async fetchData(functionType) {
+        //const url = `${this.baseURL}?function=${functionType}&symbol=${this.symbol}&apikey=${this.apiKey}`;
+        const response = await fetch(`${this.baseURL}?function=${functionType}&symbol=${this.symbol}&apikey=${this.apiKey}`)
+        const data = await response.json();
+        console.log(data);
+        return data
+    }
 
-async function timeSeriesWeekly() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
-}
-//timeSeriesWeekly();
+    async timeSeriesIntraday(interval = "5min") {
+        return this.fetchData(`TIME_SERIES_INTRADAY&interval=${interval}`);
+    }
 
-async function timeSeriesWeeklyAdjusted() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
-}
-//timeSeriesWeeklyAdjusted();
+    async timeSeriesDaily() {
+        return this.fetchData(`TIME_SERIES_DAILY`);
+    }
 
-async function timeSeriesMonthly() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`);
-    let data = await response.json();
-    console.log(data);
-}
-//timeSeriesMonthly();
+    async timeSeriesWeekly() {
+        return this.fetchData(`TIME_SERIES_WEEKLY`);
+    }
 
-async function timeSeriesMonthlyAdjusted() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
-}
-//timeSeriesMonthlyAdjusted();
+    async timeSeriesWeeklyAdjusted() {
+        return this.fetchData(`TIME_SERIES_WEEKLY_ADJUSTED`);
+    }
 
-async function quoteEndpoint() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
-}
-//quoteEndpoint();
+    async timeSeriesMonthly() {
+        return this.fetchData(`TIME_SERIES_MONTHLY`);
+    }
 
-async function searchEndpoint() {
-    const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${searchBar}&apikey=${ALPHA_VANTAGE_KEY}`)
-    let data = await response.json();
-    console.log(data);
+    async timeSeriesMonthlyAdjusted() {
+        return this.fetchData('TIME_SERIES_MONTHLY_ADJUSTED');
+    }
+
+    async quoteEndpoint() {
+        return this.fetchData('GLOBAL_QUOTE');
+    }
+
+    async searchEndpoint(keywords) {
+        const url = `${this.baseURL}?function=SYMBOL_SEARCH&keywords=${keywords}&apikey=${this.apiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    }
 }
-//searchEndpoint();
+
+
+
+
+
+
+
+
+
+/*
+
+//Portfolio Functions
+const myPortfolio = [];
+function addStockToPortfolio(stockTicker, quantity) {
+    const existingStock = myPortfolio.find(stock => stock.ticker === stockTicker);
+    if (existingStock) {
+        existingStock.quantity += quantity;
+    } else {
+        myPortfolio.push({ticker: stockTicker, quantity: quantity});
+    }
+}
+function removeStockFromPortfolio(stockTicker) {
+    const index = myPortfolio.findIndex(stock => stock.ticker === stockTicker);
+    if (index !== -1) {
+        myPortfolio.splice(index, 1);
+    }
+}
+
+function updateStockQuantity(stockTicker, quantity) {
+    const stock = myPortfolio.find(stock => stock.ticker === stockTicker);
+    if (stock) {
+        stock.quantity = quantity;
+    }
+}
+
+function getPortfolio() {
+    return myPortfolio;
+}
+
+//addStockToPortfolio('IEP', 20);
+//addStockToPortfolio('APPL', 20);
+//addStockToPortfolio('IBM', 20);
+//addStockToPortfolio('IEP', 20);
+//console.log(myPortfolio);
+//removeStockFromPortfolio('IBM');
+//console.log(getPortfolio());*/
