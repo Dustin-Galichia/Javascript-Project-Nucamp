@@ -3,6 +3,22 @@ const symbol = 'IEP';
 const interval = '5min';
 const searchBar = 'apple';
 
+const test = {
+    'Global Quote': {
+      '01. symbol': 'IEP',
+      '02. open': '16.4900',
+      '03. high': '16.5300',
+      '04. low': '16.2500',
+      '05. price': '16.5300',
+      '06. volume': '753788',
+      '07. latest trading day': '2024-05-22',
+      '08. previous close': '16.4300',
+      '09. change': '0.1000',
+      '10. change percent': '0.6086%'
+    }
+}
+
+
 class AlphaVantageAPI {
     constructor(apiKey, symbol) {
         this.apiKey = apiKey;
@@ -50,53 +66,96 @@ class AlphaVantageAPI {
         const url = `${this.baseURL}?function=SYMBOL_SEARCH&keywords=${keywords}&apikey=${this.apiKey}`;
         const response = await fetch(url);
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
         return data;
     }
 }
 
-
-
-
-
-
-
-
-
-/*
-
-//Portfolio Functions
-const myPortfolio = [];
-function addStockToPortfolio(stockTicker, quantity) {
-    const existingStock = myPortfolio.find(stock => stock.ticker === stockTicker);
-    if (existingStock) {
-        existingStock.quantity += quantity;
-    } else {
-        myPortfolio.push({ticker: stockTicker, quantity: quantity});
+class Stock {
+    constructor(symbol, numShares, purchasePrice, purchaseDate) {
+        this.symbol = symbol;
+        this.shares = numShares;
+        this.purchasePrice = purchasePrice;
+        this.purchaseDate = purchaseDate;
     }
-}
-function removeStockFromPortfolio(stockTicker) {
-    const index = myPortfolio.findIndex(stock => stock.ticker === stockTicker);
-    if (index !== -1) {
-        myPortfolio.splice(index, 1);
-    }
-}
 
-function updateStockQuantity(stockTicker, quantity) {
-    const stock = myPortfolio.find(stock => stock.ticker === stockTicker);
-    if (stock) {
-        stock.quantity = quantity;
+    async fetchCurrentPrice() {
+        //const av = new AlphaVantageAPI(ALPHA_VANTAGE_KEY, symbol)
+        //const response = await av.quoteEndpoint(this.symbol);
+        //const data = await response['Global Quote']['05. price'];
+
+        const response = test;
+        let data = parseFloat(response['Global Quote']['05. price'])
+        //console.log(data);
+
+        return data;
+    }
+
+    async getCurrentValue() {
+        const currentPrice = await this.fetchCurrentPrice();
+        return this.shares * currentPrice;
+    }//
+
+    getPurchaseValue() {
+        //console.log(this.shares * this.purchasePrice)
+        return this.shares * this.purchasePrice;
     }
 }
 
-function getPortfolio() {
-    return myPortfolio;
-}
 
-//addStockToPortfolio('IEP', 20);
-//addStockToPortfolio('APPL', 20);
-//addStockToPortfolio('IBM', 20);
-//addStockToPortfolio('IEP', 20);
-//console.log(myPortfolio);
-//removeStockFromPortfolio('IBM');
-//console.log(getPortfolio());*/
+class Portfolio {
+    constructor() {
+        this.stocks = [];
+    }
+
+    addStock(symbol, numShares, purchasePrice, purchaseDate){
+        for(let i = 0; i < this.stocks.length; i++) {
+            if(symbol === this.stocks[i].symbol) {
+                this.stocks[i].shares += numShares;
+                return;
+            }
+        }
+        const stock = new Stock(symbol, numShares, purchasePrice, purchaseDate);
+        this.stocks.push(stock);
+    }
+
+    subStock(symbol, numShares){
+        for(let i = 0; i < this.stocks.length; i++) {
+            if(symbol === this.stocks[i].symbol) {
+                this.stocks[i].shares -= numShares;
+                return;
+            }
+        }
+    }
+
+    removeStock(symbol) {
+        for(let i = 0; i < this.stocks.length; i++) {
+            if(symbol === this.stocks[i].symbol) {
+                this.stocks.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    updateStock(symbol, numShares) {
+        for(let i = 0; i < this.stocks.length; i++) {
+            if(symbol === this.stocks[i].symbol) {
+                console.log(this.stocks[i].shares + numShares)
+                
+            }
+        }
+    }
+
+    async getTotalValue() {
+        let totalValue = 0;
+        for (const stock of this.stocks) {
+            totalValue += await stock.getCurrentValue();
+        }
+        //console.log(totalValue);
+        return totalValue;
+    }
+
+    async getTotalPurchaseValue() {
+        return this.stocks.reduce((total, stock) => total + stock.getPurchaseValue(), 0);
+    }
+}
